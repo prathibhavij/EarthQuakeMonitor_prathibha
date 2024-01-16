@@ -57,7 +57,8 @@ fun EarthquakeApp(uiState: State<NetworkResult<EarthquakeResponse>?>,
                     uiStateValue.data?.let { it1 ->
                         SummaryScreen(
                             it1.features,
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize(),
+                            navHostController
                         )
                     }
                 }
@@ -70,7 +71,7 @@ fun EarthquakeApp(uiState: State<NetworkResult<EarthquakeResponse>?>,
                     LoadingScreen()
                 }
 
-                else -> {}
+                else -> { }
             }
         }
     }
@@ -79,12 +80,13 @@ fun EarthquakeApp(uiState: State<NetworkResult<EarthquakeResponse>?>,
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
-fun SummaryScreen(list: List<Feature>, modifier: Modifier = Modifier) {
+fun SummaryScreen(list: List<Feature>, modifier: Modifier = Modifier,
+                  navHostController: NavHostController) {
     LazyColumn(
         Modifier.padding(16.dp)
     ) {
         itemsIndexed(list) { index, item ->
-            SummaryRow(item)
+            SummaryRow(item,navHostController)
             if (index < list.lastIndex)
                 Divider(
                     color = Color.Black.copy(alpha = 0.3f),
@@ -96,7 +98,7 @@ fun SummaryScreen(list: List<Feature>, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SummaryRow(item: Feature) {
+fun SummaryRow(item: Feature,  navHostController: NavHostController) {
 
     val magnitude = item.properties.mag
     val background = if (magnitude in 0.0..0.9) Color.Green
@@ -113,7 +115,7 @@ fun SummaryRow(item: Feature) {
                 Text(text = item.properties.mag.toString())
                 Text(text = item.properties.place)
             }
-            IconButton(onClick = { /* navHostController.navigate("Detail") */ }) {
+            IconButton(onClick = {  navHostController.navigate("Detail")  }) {
                 Icon(Icons.Rounded.KeyboardArrowRight, contentDescription = "More Details")
             }
         }
