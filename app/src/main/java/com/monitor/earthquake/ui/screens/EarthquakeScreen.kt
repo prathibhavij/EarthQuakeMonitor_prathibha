@@ -2,7 +2,6 @@ package com.monitor.earthquake.ui.screens
 
 import android.os.Build
 import androidx.annotation.RequiresExtension
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,20 +30,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.monitor.earthquake.data.network.EarthquakeApi
+import com.monitor.earthquake.data.network.EarthquakeApiHelper
 import com.monitor.earthquake.model.EarthquakeResponse
 import com.monitor.earthquake.model.Feature
 import com.monitor.earthquake.model.NetworkResult
-import com.monitor.earthquake.model.Properties
 import com.monitor.earthquake.viewmodels.EarthquakeViewModel
+import com.monitor.earthquake.viewmodels.ViewModelFactory
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
-fun EarthquakeApp(uiState: State<NetworkResult<EarthquakeResponse>?>,
-                  navHostController: NavHostController) {
+fun EarthquakeApp(
+    uiState: State<NetworkResult<EarthquakeResponse>?>,
+    navHostController: NavHostController,
+    viewModel: EarthquakeViewModel
+) {
 
     Scaffold {
         Surface(
@@ -58,7 +61,8 @@ fun EarthquakeApp(uiState: State<NetworkResult<EarthquakeResponse>?>,
                         SummaryScreen(
                             it1.features,
                             modifier = Modifier.fillMaxSize(),
-                            navHostController
+                            navHostController,
+                            viewModel
                         )
                     }
                 }
@@ -81,12 +85,13 @@ fun EarthquakeApp(uiState: State<NetworkResult<EarthquakeResponse>?>,
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
 fun SummaryScreen(list: List<Feature>, modifier: Modifier = Modifier,
-                  navHostController: NavHostController) {
+                  navHostController: NavHostController,
+                  viewModel: EarthquakeViewModel) {
     LazyColumn(
         Modifier.padding(16.dp)
     ) {
         itemsIndexed(list) { index, item ->
-            SummaryRow(item,navHostController)
+            SummaryRow(item,navHostController,viewModel)
             if (index < list.lastIndex)
                 Divider(
                     color = Color.Black.copy(alpha = 0.3f),
@@ -98,7 +103,7 @@ fun SummaryScreen(list: List<Feature>, modifier: Modifier = Modifier,
 }
 
 @Composable
-fun SummaryRow(item: Feature,  navHostController: NavHostController) {
+fun SummaryRow(item: Feature,  navHostController: NavHostController, viewModel: EarthquakeViewModel) {
 
     val magnitude = item.properties.mag
     val background = if (magnitude in 0.0..0.9) Color.Green
@@ -115,7 +120,10 @@ fun SummaryRow(item: Feature,  navHostController: NavHostController) {
                 Text(text = item.properties.mag.toString())
                 Text(text = item.properties.place)
             }
-            IconButton(onClick = {  navHostController.navigate("Detail")  }) {
+            IconButton(onClick = {
+                viewModel.setData(feature = item )
+                navHostController.navigate("Detail")
+            }) {
                 Icon(Icons.Rounded.KeyboardArrowRight, contentDescription = "More Details")
             }
         }

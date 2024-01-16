@@ -1,5 +1,8 @@
 package com.monitor.earthquake.viewmodels
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -18,6 +21,15 @@ class EarthquakeViewModel(private val repository: EarthquakeRepository): ViewMod
 
     private val _detail: MutableLiveData<NetworkResult<Feature>> = MutableLiveData()
     val detail: LiveData<NetworkResult<Feature>> = _detail
+
+    private val _data: MutableState<Feature?> = mutableStateOf(null)
+    var data: State<Feature?> = _data
+        private set
+
+    fun setData(feature: Feature) {
+        _data.value = feature
+    }
+
 
     fun getSummaryResponse() {
         viewModelScope.launch {

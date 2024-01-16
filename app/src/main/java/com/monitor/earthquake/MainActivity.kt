@@ -48,17 +48,18 @@ class MainActivity : ComponentActivity() {
 fun ComposeNavigation() {
 
     val navController = rememberNavController()
+    val viewModel: EarthquakeViewModel =
+        viewModel(factory = ViewModelFactory(EarthquakeApiHelper(EarthquakeApi.retrofitService)))
+
 
     NavHost(navController = navController, startDestination = "List") {
         composable("List") {
-            val viewModel: EarthquakeViewModel =
-                viewModel(factory = ViewModelFactory(EarthquakeApiHelper(EarthquakeApi.retrofitService)))
             viewModel.getSummaryResponse()
             val uiState = viewModel.response.observeAsState()
-            EarthquakeApp(uiState,navController)
+            EarthquakeApp(uiState,navController,viewModel)
         }
         composable("Detail") {
-          // DetailScreen()
+           DetailScreen(viewModel)
         }
     }
 
